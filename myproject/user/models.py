@@ -1,0 +1,24 @@
+from myproject import db
+from flask_login import UserMixin
+from myproject import login_manager
+from werkzeug.security import check_password_hash, generate_password_hash
+
+@login_manager.user_loader
+def load_user(user_id):
+    User.query.get(user_id)
+
+class User(db.Model, UserMixin):
+    __tablename__ = "users"
+
+    id = db.Column(db.Integer, primary_key = True)
+    username = db.Column(db.String(128), unique = True, index = True)
+    number = db.Column(db.Integer, unique = True, index = True)
+    password_hash = db.Column(db.String(128))
+
+    def __init__(self, username, number, password):
+        self.username = username
+        self.number = number
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
